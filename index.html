@@ -20227,6 +20227,392 @@ body.ff-stitch-layout-v2 #screen-ai-btn{
 }
 </style>
 
+
+
+<!-- === FF_KK_STEP1_CLICK_AND_CENTER_LAYER_STANDARD_V2 === -->
+<style id="ff-kk-step1-center-standard-v2">
+/* STEP1: 왼쪽 채팅 제품선택 버튼 클릭 복구 + 가운데 3단 레이어 규격화 */
+body.ff-stitch-layout-v2 .product-first-select,
+body.ff-stitch-layout-v2 .product-first-select *{
+  pointer-events:auto !important;
+}
+body.ff-stitch-layout-v2 .product-first-select{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:8px !important;
+  margin-top:10px !important;
+  position:relative !important;
+  z-index:50 !important;
+}
+body.ff-stitch-layout-v2 .product-first-select .product-select-title{
+  margin:4px 0 0 !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  color:#dff7ff !important;
+}
+body.ff-stitch-layout-v2 .product-first-select .product-select-title span{
+  display:block !important;
+  margin-top:2px !important;
+  font-size:10px !important;
+  font-weight:700 !important;
+  color:#8aa0b8 !important;
+}
+body.ff-stitch-layout-v2 .product-first-select .product-select-row{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:7px !important;
+  margin:0 !important;
+}
+body.ff-stitch-layout-v2 .product-first-select .product-choice-btn{
+  position:relative !important;
+  z-index:55 !important;
+  cursor:pointer !important;
+  user-select:none !important;
+  min-height:38px !important;
+  border-color:rgba(148,163,184,.34) !important;
+  background:#101a2a !important;
+  color:#eef6ff !important;
+}
+body.ff-stitch-layout-v2 .product-first-select .product-choice-btn.selected,
+body.ff-stitch-layout-v2 .product-first-select .product-choice-btn.multi-selected{
+  border-color:#8ee9d9 !important;
+  background:rgba(142,233,217,.14) !important;
+  color:#ffffff !important;
+  box-shadow:0 0 0 3px rgba(142,233,217,.14) !important;
+}
+body.ff-stitch-layout-v2 .product-first-select .product-confirm-btn{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-height:40px !important;
+  margin-top:4px !important;
+  border-radius:12px !important;
+  background:#8ee9d9 !important;
+  color:#07131e !important;
+  border:0 !important;
+  cursor:pointer !important;
+  font-weight:1000 !important;
+}
+body.ff-stitch-layout-v2 .product-first-select .product-confirm-btn[style*="display: none"]{display:none !important;}
+body.ff-stitch-layout-v2 .product-first-select .product-select-hint{
+  font-size:10px !important;
+  color:#8aa0b8 !important;
+  line-height:1.35 !important;
+}
+
+/* 가운데: 렌더링창 / 추가제품선택 / 데스크옵션 규격화 */
+body.ff-stitch-layout-v2 #preview-panel{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:0 !important;
+  overflow:hidden !important;
+}
+body.ff-stitch-layout-v2 #ff-dashboard-hero{
+  order:1 !important;
+  flex:1 1 auto !important;
+  min-height:310px !important;
+  max-height:none !important;
+}
+body.ff-stitch-layout-v2 #ff-stitch-center-tray{
+  order:2 !important;
+  flex:0 0 330px !important;
+  min-height:330px !important;
+  max-height:330px !important;
+  overflow:hidden !important;
+  display:grid !important;
+  grid-template-rows:22px 122px 1fr !important;
+  gap:10px !important;
+  padding:12px 18px 14px !important;
+  background:#141f30 !important;
+  border-top:1px solid rgba(148,163,184,.18) !important;
+}
+body.ff-stitch-layout-v2 #ff-stitch-center-tray .ff-tray-title{
+  grid-row:1 !important;
+  margin:0 !important;
+  height:22px !important;
+  line-height:22px !important;
+  font-size:11px !important;
+  letter-spacing:.14em !important;
+}
+body.ff-stitch-layout-v2 #set-product-selector{
+  grid-row:2 !important;
+  display:block !important;
+  min-height:0 !important;
+  max-height:122px !important;
+  height:122px !important;
+  padding:8px 10px !important;
+  margin:0 !important;
+  overflow:hidden !important;
+  border:1px solid rgba(148,163,184,.22) !important;
+  border-radius:14px !important;
+  background:#101a2a !important;
+}
+body.ff-stitch-layout-v2 #set-product-selector[style*="display:none"],
+body.ff-stitch-layout-v2 #set-product-selector[style*="display: none"]{
+  display:none !important;
+}
+body.ff-stitch-layout-v2 #set-product-selector > div[style*="원하시는"],
+body.ff-stitch-layout-v2 #set-product-selector > div:first-child{
+  height:14px !important;
+  margin:0 0 5px !important;
+  font-size:10px !important;
+  line-height:14px !important;
+}
+body.ff-stitch-layout-v2 #set-product-selector > div[style*="데스크"],
+body.ff-stitch-layout-v2 #set-product-selector > div[style*="스크린"]{
+  display:none !important;
+}
+body.ff-stitch-layout-v2 #desk-grid,
+body.ff-stitch-layout-v2 #screen-grid{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  gap:7px !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  padding:0 0 3px !important;
+  margin:0 0 5px !important;
+  max-height:44px !important;
+  scrollbar-width:thin !important;
+}
+body.ff-stitch-layout-v2 #set-product-selector [data-set-name]{
+  flex:0 0 120px !important;
+  width:120px !important;
+  min-width:120px !important;
+  height:40px !important;
+  min-height:40px !important;
+  max-height:40px !important;
+  border-radius:11px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  cursor:pointer !important;
+}
+body.ff-stitch-layout-v2 #set-product-selector [data-set-name] img{display:none !important;}
+body.ff-stitch-layout-v2 #set-product-selector [data-set-name] > div:not(.set-check-badge){
+  position:static !important;
+  background:none !important;
+  padding:0 8px !important;
+  color:#eef6ff !important;
+  font-size:11px !important;
+  font-weight:900 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+body.ff-stitch-layout-v2 #set-confirm-btn{
+  height:30px !important;
+  min-height:30px !important;
+  padding:0 10px !important;
+  margin-top:0 !important;
+  border-radius:10px !important;
+  font-size:11px !important;
+}
+body.ff-stitch-layout-v2 #set-composite-area,
+body.ff-stitch-layout-v2 #set-pegboard-note{display:none !important;}
+
+/* 데스크 상판형태/이동방식/다리형태/사이즈 이미지 영역은 하단 규격 슬롯 */
+body.ff-stitch-layout-v2 #ff-static-option-preview,
+body.ff-stitch-layout-v2 #ff90-option-summary,
+body.ff-stitch-layout-v2 #ff71-selection-gallery,
+body.ff-stitch-layout-v2 #desk-option-preview,
+body.ff-stitch-layout-v2 #desk-option-images,
+body.ff-stitch-layout-v2 #texture-preview{
+  grid-row:3 !important;
+  min-height:0 !important;
+  max-height:100% !important;
+  height:100% !important;
+  margin:0 !important;
+  padding:10px !important;
+  overflow:hidden !important;
+  border:1px solid rgba(148,163,184,.22) !important;
+  border-radius:14px !important;
+  background:#101a2a !important;
+}
+body.ff-stitch-layout-v2 #ff-static-option-preview .ff-static-title,
+body.ff-stitch-layout-v2 #ff90-option-summary .ff-static-title{
+  height:18px !important;
+  margin:0 0 8px !important;
+  font-size:11px !important;
+}
+body.ff-stitch-layout-v2 #ff-static-option-preview .ff-option-grid,
+body.ff-stitch-layout-v2 #ff90-option-summary .ff-option-grid,
+body.ff-stitch-layout-v2 #ff71-selection-gallery .ff-option-grid,
+body.ff-stitch-layout-v2 #desk-option-preview,
+body.ff-stitch-layout-v2 #desk-option-images{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:8px !important;
+  height:calc(100% - 26px) !important;
+  overflow:hidden !important;
+}
+body.ff-stitch-layout-v2 #ff-static-option-preview .ff-option-card,
+body.ff-stitch-layout-v2 #ff90-option-summary .ff-option-card,
+body.ff-stitch-layout-v2 #desk-option-preview > *,
+body.ff-stitch-layout-v2 #desk-option-images > *{
+  min-height:0 !important;
+  height:100% !important;
+  max-height:126px !important;
+  border-radius:12px !important;
+  overflow:hidden !important;
+}
+body.ff-stitch-layout-v2 #ff-static-option-preview img,
+body.ff-stitch-layout-v2 #ff90-option-summary img,
+body.ff-stitch-layout-v2 #ff71-selection-gallery img,
+body.ff-stitch-layout-v2 #desk-option-preview img,
+body.ff-stitch-layout-v2 #desk-option-images img{
+  height:82px !important;
+  max-height:82px !important;
+  object-fit:contain !important;
+}
+body.ff-stitch-layout-v2 #texture-preview .quick-preview-grid{display:none !important;}
+body.ff-stitch-layout-v2 #texture-preview .quick-materials{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:8px !important;
+  height:calc(100% - 36px) !important;
+  overflow:hidden !important;
+}
+body.ff-stitch-layout-v2 #texture-preview .material-chip-row{
+  min-width:0 !important;
+  height:auto !important;
+  min-height:54px !important;
+}
+@media(max-height:780px){
+  body.ff-stitch-layout-v2 #ff-dashboard-hero{min-height:250px !important;}
+  body.ff-stitch-layout-v2 #ff-stitch-center-tray{flex-basis:300px !important;min-height:300px !important;max-height:300px !important;grid-template-rows:20px 112px 1fr !important;}
+  body.ff-stitch-layout-v2 #set-product-selector{height:112px !important;max-height:112px !important;}
+  body.ff-stitch-layout-v2 #set-product-selector [data-set-name]{height:36px !important;min-height:36px !important;max-height:36px !important;}
+}
+</style>
+<script id="ff-kk-step1-click-and-center-standard-v2-js">
+(function(){
+  if(window.__ffKKStep1ClickCenterV2) return;
+  window.__ffKKStep1ClickCenterV2 = true;
+  function $(id){return document.getElementById(id);}
+  function arrHas(a,v){return a.indexOf(v)!==-1;}
+  function uniqPush(a,v){if(!arrHas(a,v)) a.push(v);}
+  var DESKS=['일반형 데스크','덕트형 데스크'];
+  var FS=['전면 스크린','사이드 스크린'];
+  var SINGLE=['일자형 스크린','L형 스크린'];
+  var ORDER=DESKS.concat(FS).concat(SINGLE);
+  function normalize(sel){ return ORDER.filter(function(x){return sel.indexOf(x)!==-1;}); }
+  function safeSync(sel, finalFlag){
+    try{ window._setSelected = sel.slice(); }catch(e){}
+    try{ if(typeof ffSyncProductBundleSelection==='function') ffSyncProductBundleSelection(sel.slice(), !!finalFlag); }catch(e){}
+    try{
+      window.state = window.state || {};
+      window.state.type='세트상품';
+      window.state.current = window.state.current || {};
+      window.state.current.type='세트상품';
+      if(sel.length) window.state.current.product=sel.join(' + '); else delete window.state.current.product;
+      if(typeof updateCurrent==='function') updateCurrent();
+    }catch(e){}
+    try{ if(typeof updateSetConfirmBtn==='function') updateSetConfirmBtn(); }catch(e){}
+  }
+  function makeButton(name, selectedRef, syncFn){
+    var btn=document.createElement('button');
+    btn.type='button';
+    btn.className='choice-btn product-choice-btn';
+    btn.textContent=name;
+    btn.setAttribute('data-product-name', name);
+    btn.addEventListener('click', function(e){
+      if(e){ e.preventDefault(); e.stopPropagation(); }
+      if(btn.disabled) return false;
+      var sel=selectedRef.value.slice();
+      if(arrHas(sel,name)){
+        sel=sel.filter(function(x){return x!==name;});
+      }else if(arrHas(DESKS,name)){
+        sel=sel.filter(function(x){return !arrHas(DESKS,x);});
+        uniqPush(sel,name);
+      }else if(arrHas(FS,name)){
+        sel=sel.filter(function(x){return !arrHas(SINGLE,x);});
+        uniqPush(sel,name);
+      }else if(arrHas(SINGLE,name)){
+        sel=sel.filter(function(x){return !arrHas(FS,x) && !arrHas(SINGLE,x);});
+        uniqPush(sel,name);
+      }
+      selectedRef.value=normalize(sel);
+      syncFn(false);
+      return false;
+    }, true);
+    return btn;
+  }
+  window.addProductSelectionButtons = addProductSelectionButtons = function(confirmCb){
+    var b = (typeof getLastBubble==='function') ? getLastBubble() : null;
+    if(!b) return;
+    var selectedRef={value:[]};
+    var wrap=document.createElement('div');
+    wrap.className='product-first-select';
+    function sync(finalFlag){
+      var sel=selectedRef.value=normalize(selectedRef.value);
+      Array.prototype.slice.call(wrap.querySelectorAll('[data-product-name]')).forEach(function(btn){
+        var name=btn.getAttribute('data-product-name');
+        var on=arrHas(sel,name);
+        btn.classList.toggle('selected', on);
+        btn.classList.toggle('multi-selected', on);
+        btn.setAttribute('aria-pressed', on?'true':'false');
+      });
+      confirmBtn.textContent='선택 완료 ('+sel.length+'개)';
+      confirmBtn.style.display=sel.length ? 'inline-flex' : 'none';
+      confirmBtn.disabled=!sel.length;
+      safeSync(sel, finalFlag);
+    }
+    var deskTitle=document.createElement('div');
+    deskTitle.className='product-select-title';
+    deskTitle.innerHTML='데스크 <span>일반형/덕트형 중 하나만 선택됩니다.</span>';
+    wrap.appendChild(deskTitle);
+    var deskRow=document.createElement('div');
+    deskRow.className='btn-group product-select-row';
+    DESKS.forEach(function(n){ deskRow.appendChild(makeButton(n, selectedRef, sync)); });
+    wrap.appendChild(deskRow);
+    var screenTitle=document.createElement('div');
+    screenTitle.className='product-select-title';
+    screenTitle.innerHTML='스크린 <span>전면+사이드는 복수선택, 일자형/L형은 단독 선택입니다.</span>';
+    wrap.appendChild(screenTitle);
+    var screenRow=document.createElement('div');
+    screenRow.className='btn-group product-select-row';
+    FS.concat(SINGLE).forEach(function(n){ screenRow.appendChild(makeButton(n, selectedRef, sync)); });
+    wrap.appendChild(screenRow);
+    var hint=document.createElement('div');
+    hint.className='product-select-hint';
+    hint.textContent='예: 일반형 데스크 + 전면 스크린 + 사이드 스크린 / 또는 L형 스크린 단독';
+    wrap.appendChild(hint);
+    var confirmBtn=document.createElement('button');
+    confirmBtn.type='button';
+    confirmBtn.className='confirm-btn product-confirm-btn';
+    confirmBtn.textContent='선택 완료 (0개)';
+    confirmBtn.style.display='none';
+    confirmBtn.disabled=true;
+    confirmBtn.addEventListener('click', function(e){
+      if(e){ e.preventDefault(); e.stopPropagation(); }
+      var sel=normalize(selectedRef.value);
+      if(!sel.length) return false;
+      selectedRef.value=sel;
+      Array.prototype.slice.call(wrap.querySelectorAll('button')).forEach(function(x){x.disabled=true;});
+      confirmBtn.textContent='선택 완료';
+      safeSync(sel, true);
+      try{ if(typeof addMsg==='function') addMsg('user', sel.join(', ')); }catch(err){}
+      if(typeof confirmCb==='function') confirmCb(sel.slice());
+      return false;
+    }, true);
+    wrap.appendChild(confirmBtn);
+    b.appendChild(wrap);
+    try{ if(typeof scrollBottom==='function') scrollBottom(); }catch(e){}
+  };
+  function moveCenterPanels(){
+    var tray=$('ff-stitch-center-tray');
+    if(!tray) return;
+    ['set-product-selector','ff-static-option-preview','ff90-option-summary','ff71-selection-gallery','desk-option-preview','desk-option-images','texture-preview','product-preview-box','screen-composite-preview','ff-live-preview'].forEach(function(id){
+      var n=$(id); if(n && n.parentNode!==tray) tray.appendChild(n);
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', moveCenterPanels);
+  else moveCenterPanels();
+  setTimeout(moveCenterPanels, 200);
+  setTimeout(moveCenterPanels, 900);
+  setTimeout(moveCenterPanels, 1800);
+})();
+</script>
 </body>
 
 
