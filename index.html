@@ -20613,6 +20613,300 @@ body.ff-stitch-layout-v2 #texture-preview .material-chip-row{
   setTimeout(moveCenterPanels, 1800);
 })();
 </script>
+
+
+<!-- === FF_KK_CENTER_REDESIGN_RESULT_FIRST_V1 === -->
+<style id="ff-kk-center-redesign-result-first-v1">
+/* 결과 먼저 보는 3단 중앙 레이아웃: 렌더링창 → 제품선택 → 옵션/사이즈 */
+body.ff-stitch-layout-v2 #ff-stitch-app{
+  grid-template-columns:minmax(300px,21vw) minmax(700px,1fr) minmax(260px,19vw) !important;
+}
+body.ff-stitch-layout-v2 #preview-panel{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:12px !important;
+  padding:16px !important;
+  overflow:hidden !important;
+  background:#0b1422 !important;
+}
+/* 1. 맨 위 렌더링창: 빈 공터처럼 보이지 않게 높이 규격화 */
+body.ff-stitch-layout-v2 #ff-dashboard-hero{
+  order:1 !important;
+  flex:0 0 42vh !important;
+  min-height:300px !important;
+  max-height:430px !important;
+  border:1px solid rgba(148,163,184,.20) !important;
+  border-radius:18px !important;
+  background:linear-gradient(180deg,rgba(17,29,48,.96),rgba(13,23,38,.96)) !important;
+  overflow:hidden !important;
+}
+body.ff-stitch-layout-v2 #ff-dashboard-hero .ff-hero-topline{
+  top:14px !important; left:18px !important; right:18px !important;
+  height:20px !important; line-height:20px !important;
+}
+body.ff-stitch-layout-v2 #ff-dashboard-hero .ff-hero-image-card{
+  padding:44px 22px 18px !important;
+  height:100% !important;
+}
+body.ff-stitch-layout-v2 #ff-hero-canvas{
+  inset:44px 22px 18px !important;
+  width:calc(100% - 44px) !important;
+  height:calc(100% - 62px) !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+body.ff-stitch-layout-v2 #ff-dashboard-hero::after{
+  content:'렌더링 결과는 여기에서 확인합니다';
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  color:rgba(202,213,225,.22); font-weight:900; font-size:15px; letter-spacing:.02em;
+  pointer-events:none;
+}
+body.ff-stitch-layout-v2 #ff-dashboard-hero:has(img:not([src=""]):not([style*="display: none"]))::after{content:'';}
+
+/* 2. 아래 스튜디오 영역: 제목 공터 제거, 두 카드로만 구성 */
+body.ff-stitch-layout-v2 #ff-stitch-center-tray{
+  order:2 !important;
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  display:grid !important;
+  grid-template-rows:auto 1fr !important;
+  gap:12px !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  overflow:hidden !important;
+}
+body.ff-stitch-layout-v2 #ff-stitch-center-tray > .ff-tray-title{
+  display:none !important;
+}
+
+/* 추가할 제품 선택: 중간 한 줄 */
+body.ff-stitch-layout-v2 #set-product-selector{
+  grid-row:1 !important;
+  height:auto !important;
+  min-height:96px !important;
+  max-height:112px !important;
+  padding:12px 14px !important;
+  border-radius:18px !important;
+  background:rgba(17,29,48,.98) !important;
+  border:1px solid rgba(148,163,184,.22) !important;
+  box-shadow:0 10px 30px rgba(0,0,0,.14) !important;
+  overflow:hidden !important;
+}
+body.ff-stitch-layout-v2 #set-product-selector:before{
+  content:'추가할 제품을 선택하세요';
+  display:block; height:18px; line-height:18px;
+  margin:0 0 8px; color:#eaf6ff; font-size:13px; font-weight:1000;
+}
+body.ff-stitch-layout-v2 #desk-grid,
+body.ff-stitch-layout-v2 #screen-grid{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+  gap:8px !important;
+  max-height:42px !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  margin:0 !important;
+  padding:0 0 2px !important;
+}
+body.ff-stitch-layout-v2 #set-product-selector [data-set-name]{
+  flex:0 0 122px !important;
+  width:122px !important;
+  min-width:122px !important;
+  height:40px !important;
+  min-height:40px !important;
+  max-height:40px !important;
+  padding:0 10px !important;
+  border-radius:12px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+body.ff-stitch-layout-v2 #set-product-selector [data-set-name] img{display:none !important;}
+body.ff-stitch-layout-v2 #set-product-selector [data-set-name] > div:not(.set-check-badge){
+  position:static !important; padding:0 !important; background:transparent !important;
+  font-size:11px !important; font-weight:900 !important; color:#eef6ff !important;
+  white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important;
+}
+body.ff-stitch-layout-v2 #set-confirm-btn{
+  height:30px !important; min-height:30px !important; margin-top:6px !important;
+  border-radius:11px !important; font-size:11px !important;
+}
+
+/* 하단 옵션/사이즈 규격 슬롯 */
+body.ff-stitch-layout-v2 #ff-kk-option-slot{
+  grid-row:2 !important;
+  min-height:0 !important;
+  height:100% !important;
+  padding:14px !important;
+  border-radius:18px !important;
+  background:rgba(17,29,48,.98) !important;
+  border:1px solid rgba(148,163,184,.22) !important;
+  overflow:hidden !important;
+}
+body.ff-stitch-layout-v2 .ff-kk-slot-head{
+  height:20px; display:flex; align-items:center; justify-content:space-between;
+  margin:0 0 10px; color:#2ef2c9; font-size:13px; font-weight:1000;
+}
+body.ff-stitch-layout-v2 .ff-kk-slot-head small{color:#8aa0b8;font-size:10px;font-weight:800;}
+body.ff-stitch-layout-v2 .ff-kk-option-grid{
+  height:calc(100% - 30px) !important;
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:10px !important;
+}
+body.ff-stitch-layout-v2 .ff-kk-option-card{
+  min-width:0; min-height:0;
+  border:1px solid rgba(46,242,201,.30);
+  border-radius:16px;
+  background:rgba(7,19,32,.65);
+  padding:10px;
+  display:grid;
+  grid-template-rows:18px minmax(70px,1fr) 22px;
+  gap:6px;
+  overflow:hidden;
+}
+body.ff-stitch-layout-v2 .ff-kk-option-card span{
+  color:#2ef2c9; font-size:11px; font-weight:1000; white-space:nowrap;
+}
+body.ff-stitch-layout-v2 .ff-kk-option-card img{
+  width:100%; height:100%; max-height:110px; object-fit:contain;
+  background:rgba(9,18,31,.55); border-radius:12px;
+}
+body.ff-stitch-layout-v2 .ff-kk-option-card b{
+  color:#eef6ff; font-size:12px; line-height:22px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+body.ff-stitch-layout-v2 .ff-kk-option-card.ff-size-card{
+  grid-template-rows:18px 1fr 22px;
+}
+body.ff-stitch-layout-v2 .ff-kk-size-value{
+  display:flex; align-items:center; justify-content:center;
+  min-height:70px; border-radius:12px;
+  background:rgba(9,18,31,.55);
+  color:#eaf6ff; font-size:22px; font-weight:1000; letter-spacing:-.04em;
+}
+
+/* 기존 옵션/재질 패널은 데이터 공급용으로만 숨김: 화면 중복 제거 */
+body.ff-stitch-layout-v2 #ff-static-option-preview,
+body.ff-stitch-layout-v2 #ff90-option-summary,
+body.ff-stitch-layout-v2 #ff71-selection-gallery,
+body.ff-stitch-layout-v2 #desk-option-preview,
+body.ff-stitch-layout-v2 #desk-option-images,
+body.ff-stitch-layout-v2 #texture-preview,
+body.ff-stitch-layout-v2 #product-preview-box,
+body.ff-stitch-layout-v2 #screen-composite-preview,
+body.ff-stitch-layout-v2 #ff-live-preview{
+  position:absolute !important;
+  left:-99999px !important;
+  top:auto !important;
+  width:1px !important;
+  height:1px !important;
+  overflow:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+
+/* 오른쪽 요약창은 정보량에 맞게 조금 압축 */
+body.ff-stitch-layout-v2 #summary-panel,
+body.ff-stitch-layout-v2 #right-panel{
+  min-width:250px !important;
+}
+body.ff-stitch-layout-v2 #summary-panel .panel,
+body.ff-stitch-layout-v2 #right-panel .panel,
+body.ff-stitch-layout-v2 #current-box,
+body.ff-stitch-layout-v2 #texture-summary{
+  padding:14px !important;
+  border-radius:16px !important;
+}
+body.ff-stitch-layout-v2 #total-box{
+  padding:18px 14px !important;
+}
+
+@media(max-height:820px){
+  body.ff-stitch-layout-v2 #ff-dashboard-hero{flex-basis:38vh !important;min-height:250px !important;}
+  body.ff-stitch-layout-v2 #set-product-selector{min-height:88px !important;max-height:100px !important;padding:10px 12px !important;}
+  body.ff-stitch-layout-v2 #ff-kk-option-slot{padding:12px !important;}
+  body.ff-stitch-layout-v2 .ff-kk-option-grid{gap:8px !important;}
+  body.ff-stitch-layout-v2 .ff-kk-option-card{padding:8px !important;}
+}
+</style>
+<script id="ff-kk-center-redesign-result-first-v1-js">
+(function(){
+  if(window.__ffKKCenterRedesignResultFirstV1) return;
+  window.__ffKKCenterRedesignResultFirstV1=true;
+  function $(id){return document.getElementById(id)}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function pickImg(words){
+    var boxes=['ff90-option-summary','ff-static-option-preview','ff71-selection-gallery','desk-option-preview','desk-option-images'];
+    for(var bi=0;bi<boxes.length;bi++){
+      var box=$(boxes[bi]); if(!box) continue;
+      var cards=Array.prototype.slice.call(box.querySelectorAll('.ff90-card,.ff-option-card,[class*="card"],div'));
+      for(var i=0;i<cards.length;i++){
+        var t=(cards[i].textContent||'');
+        if(words.some(function(w){return t.indexOf(w)>-1;})){
+          var im=cards[i].querySelector&&cards[i].querySelector('img[src]');
+          if(im && im.getAttribute('src')) return {src:im.getAttribute('src'), label:(cards[i].querySelector('b,strong')||{}).textContent||t.trim().slice(0,20)};
+        }
+      }
+    }
+    return null;
+  }
+  function getStateLabel(keys, fallback){
+    try{
+      var s=window.state||{}, c=s.current||{};
+      for(var i=0;i<keys.length;i++) if(c[keys[i]]||s[keys[i]]) return c[keys[i]]||s[keys[i]];
+    }catch(e){}
+    return fallback;
+  }
+  function getSize(){
+    var v=getStateLabel(['size','deskSize','screenSize','width'],'-');
+    if(v && typeof v==='object'){
+      if(v.w||v.width) return (v.w||v.width)+'mm';
+      return '-';
+    }
+    return v||'-';
+  }
+  function ensureSlot(){
+    var tray=$('ff-stitch-center-tray'); if(!tray) return null;
+    var slot=$('ff-kk-option-slot');
+    if(!slot){
+      slot=document.createElement('section');
+      slot.id='ff-kk-option-slot';
+      tray.appendChild(slot);
+    }
+    return slot;
+  }
+  function renderSlot(){
+    var slot=ensureSlot(); if(!slot) return;
+    var top=pickImg(['상판','직사각','라운드']) || {src:'images/options/top/rect.png',label:getStateLabel(['topShape','topLabel'],'상판 선택 전')};
+    var move=pickImg(['이동','글라이드','캐스터']) || {src:'images/options/mobility/ladder_glide.png',label:getStateLabel(['casterType','mobility','casterLabel'],'이동방식 선택 전')};
+    var leg=pickImg(['다리','사다리','원형','A자']) || {src:'images/options/leg/ladder.png',label:getStateLabel(['legType','legLabel'],'다리 선택 전')};
+    slot.innerHTML='<div class="ff-kk-slot-head"><span>데스크 옵션 / 사이즈</span><small>상판 · 이동방식 · 다리 · 사이즈</small></div>'+
+      '<div class="ff-kk-option-grid">'+
+      card('상판형태',top.src,top.label)+
+      card('이동방식',move.src,move.label)+
+      card('다리형태',leg.src,leg.label)+
+      '<div class="ff-kk-option-card ff-size-card"><span>사이즈</span><div class="ff-kk-size-value">'+esc(getSize())+'</div><b>입력값 기준</b></div>'+
+      '</div>';
+  }
+  function card(title,src,label){
+    return '<div class="ff-kk-option-card"><span>'+esc(title)+'</span><img src="'+esc(src||'')+'" onerror="this.style.opacity=.12"><b>'+esc(label||'선택 전')+'</b></div>';
+  }
+  function move(){
+    var tray=$('ff-stitch-center-tray'); if(!tray) return;
+    var product=$('set-product-selector'); if(product && product.parentNode!==tray) tray.appendChild(product);
+    ensureSlot();
+    renderSlot();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', move); else move();
+  [100,500,1200,2500].forEach(function(t){setTimeout(move,t)});
+  try{ new MutationObserver(function(){clearTimeout(window.__ffKKSlotTimer);window.__ffKKSlotTimer=setTimeout(renderSlot,80);}).observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true}); }catch(e){}
+})();
+</script>
+
 </body>
 
 
