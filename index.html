@@ -3704,6 +3704,64 @@ function addButtons(options, backFn, callback) {
   scrollBottom();
 }
 
+
+
+/* === FF FIX: sync left-chat product multi-selection with preview/render state ===
+   The left chatbot selector and the center image selector used separate state paths.
+   This helper mirrors chat selections into the same state fields used by preview/render logic.
+*/
+function ffSyncProductBundleSelection(sel, confirmed) {
+  sel = Array.isArray(sel) ? sel.slice() : [];
+  try { window._setSelected = sel.slice(); } catch(e) {}
+
+  state.selectedProducts = sel.slice();
+  state.current = state.current || {};
+  if (sel.length) {
+    state.type = '세트상품';
+    state.current.type = '세트상품';
+    state.current.product = sel.join(' + ');
+  }
+  if (confirmed) state.selectedCategories = sel.slice();
+
+  var joined = sel.join(' ');
+  if (/덕트형\s*데스크/.test(joined)) {
+    state.deskKey = state.selectedDeskKey = 'desk_duct';
+    state.deskLabel = '덕트형 데스크';
+  } else if (/일반형\s*데스크|데스크/.test(joined)) {
+    state.deskKey = state.selectedDeskKey = 'desk_standard';
+    state.deskLabel = '일반형 데스크';
+  }
+
+  var hasFront = /전면\s*스크린/.test(joined);
+  var hasSide = /사이드\s*스크린/.test(joined);
+  var hasStraight = /일자형\s*스크린/.test(joined);
+  var hasL = /L형\s*스크린|엘형\s*스크린/.test(joined);
+  var sk = '';
+  if (hasFront && hasSide) sk = 'frontside';
+  else if (hasFront) sk = 'front';
+  else if (hasSide) sk = 'side';
+  else if (hasStraight) sk = 'straight';
+  else if (hasL) sk = 'lshape';
+
+  if (sk) {
+    state.screenKey = state.selectedScreenKey = state.currentScreenKey = sk;
+    state.screenLabel = sk === 'frontside' ? '전면+사이드 스크린' :
+      sk === 'front' ? '전면 스크린' :
+      sk === 'side' ? '사이드 스크린' :
+      sk === 'straight' ? '일자형 스크린' : 'L형 스크린';
+  }
+
+  try {
+    if (window.FlowFinderFastPreview && window.FlowFinderFastPreview.state) {
+      var pv = window.FlowFinderFastPreview.state;
+      if (state.deskKey) pv.deskKey = state.deskKey;
+      if (sk) pv.screenKey = sk;
+    }
+  } catch(e) {}
+
+  try { updateCurrent(); } catch(e) {}
+}
+
 function addMultiButtons(options, backFn, confirmCb) {
   var b = getLastBubble(); if (!b) return;
   var selected = [];
@@ -3796,6 +3854,7 @@ function addProductSelectionButtons(confirmCb) {
     } else if (state.current) {
       delete state.current.product;
     }
+    ffSyncProductBundleSelection(selected.slice(), false);
     updateCurrent();
   }
   function toggle(name) {
@@ -3867,6 +3926,7 @@ function addProductSelectionButtons(confirmCb) {
     wrap.querySelectorAll('button').forEach(function(x) { x.disabled = true; });
     confirmBtn.disabled = true;
     normalizeOrder();
+    ffSyncProductBundleSelection(selected.slice(), true);
     addMsg('user', selected.join(', '));
     confirmCb(selected.slice());
   };
@@ -4450,6 +4510,7 @@ function startFlow() {
 
   addProductSelectionButtons(function(sel) {
     saveHistory(startFlow);
+    ffSyncProductBundleSelection(sel, true);
     state.type = '세트상품';
     state.current = { type: '세트상품', product: sel.join(' + ') };
     state.selectedCategories = sel;
@@ -4463,6 +4524,7 @@ function askSetCategories() {
   addMsg('bot', '제품을 선택해주세요. <span style="color:#7c3aed;font-size:11px;">데스크는 양자택일, 전면/사이드 스크린은 복수선택 가능</span>');
   addProductSelectionButtons(function(sel) {
     saveHistory(askSetCategories);
+    ffSyncProductBundleSelection(sel, true);
     state.selectedCategories = sel;
     state.currentCatIdx = 0;
     processNextCategory();
@@ -4508,6 +4570,7 @@ function showSetProductSelector() {
     document.getElementById('set-composite-area').style.display = 'none';
     document.getElementById('set-pegboard-note').style.display = 'none';
     saveHistory(askSetCategories);
+    ffSyncProductBundleSelection(sel, true);
     state.selectedCategories = sel;
     state.currentCatIdx = 0;
     processNextCategory();
@@ -12309,7 +12372,12 @@ button.material-btn{
     var k=productKeyFromName(currentCat());
     if(/^screen_/.test(k)) return k;
     if(Array.isArray(a.selectedCategories)){
-      for(var i=0;i<a.selectedCategories.length;i++){var kk=productKeyFromName(a.selectedCategories[i]); if(/^screen_/.test(kk)) return kk;}
+      var joined=a.selectedCategories.join(' ');
+      if(/전면/.test(joined) && /사이드/.test(joined)) return 'frontside';
+      for(var i=0;i<a.selectedCategories.length;i++){
+        var kk=productKeyFromName(a.selectedCategories[i]);
+        if(['front','side','straight','lshape','lshape_R','frontside'].indexOf(kk)>=0) return kk;
+      }
     }
     return '';
   }
@@ -19645,6 +19713,519 @@ body.ff-stitch-layout-v2{
   setTimeout(applyStitchLayout, 1200);
 })();
 </script>
+
+
+<!-- === FF_REFACTOR_TRAFFIC_GUARD_AND_LAYOUT_BASELINE_V1 === -->
+<style id="ff-refactor-layout-baseline-v1">
+/*
+  Refactor baseline
+  - This final CSS layer intentionally overrides the many historical patch blocks above.
+  - Goal: visual-only option selection, stable layout spacing, no accidental render-heavy UI shifts.
+*/
+:root{
+  --ff-bg:#07111d;
+  --ff-panel:#0d1726;
+  --ff-panel-2:#111d2f;
+  --ff-line:rgba(148,163,184,.20);
+  --ff-line-strong:rgba(148,163,184,.34);
+  --ff-text:#e5eefb;
+  --ff-muted:#8ea0b8;
+  --ff-accent:#2ef2c9;
+  --ff-radius:18px;
+  --ff-gap:14px;
+}
+
+/* main panels */
+#chat-panel,
+#preview-panel,
+#ff-left-panel,
+#ff-center-panel,
+#ff-right-panel,
+#ff-clean-right-dashboard{
+  box-sizing:border-box!important;
+}
+#preview-panel{
+  overflow:auto!important;
+  scroll-behavior:smooth;
+}
+
+/* option cards: selecting options must be light UI work only */
+#desk-grid,
+#screen-grid,
+.ff102-option-list,
+.material-grid,
+.material-chip-row,
+.ff-hero-swatches{
+  contain:layout paint!important;
+}
+#desk-grid,
+#screen-grid{
+  display:grid!important;
+  gap:12px!important;
+  align-items:stretch!important;
+}
+#desk-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+#screen-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+.choice-btn,
+.material-btn,
+.product-select-card,
+.set-card,
+.ff102-option-row{
+  transition:border-color .12s ease, background-color .12s ease, transform .12s ease!important;
+  will-change:auto!important;
+}
+.choice-btn:hover,
+.material-btn:hover,
+.product-select-card:hover,
+.set-card:hover,
+.ff102-option-row:hover{
+  transform:translateY(-1px)!important;
+}
+
+/* strict vertical separation: option image -> material values -> render result */
+#desk-option-preview,
+#desk-option-images,
+.desk-option-image-wrap,
+#ff90-option-summary,
+#ff136-option-summary,
+#set-product-selector{
+  position:relative!important;
+  clear:both!important;
+  margin:0 0 18px 0!important;
+  padding:14px!important;
+  border:1px solid var(--ff-line)!important;
+  border-radius:var(--ff-radius)!important;
+  background:rgba(13,23,38,.74)!important;
+}
+#texture-preview,
+#material-selection-values,
+.material-selection-panel,
+#screen-composite-preview,
+#quick-ai-preview-note,
+#ff-cpf-render-panel{
+  position:relative!important;
+  clear:both!important;
+  margin-top:18px!important;
+  padding:14px!important;
+  border:1px solid var(--ff-line)!important;
+  border-radius:var(--ff-radius)!important;
+  background:rgba(7,17,29,.72)!important;
+}
+
+/* render result should not be created/expanded until the render button is pressed */
+#quick-ai-preview-note:not(.ai-loading):not(.ai-result):empty,
+#ff-cpf-render-panel:not(.ff-cpf-has-run){
+  display:none!important;
+}
+
+/* media and previews */
+#preview-panel img,
+#ff-cpf-render-box img,
+#quick-ai-preview-note img{
+  max-width:100%!important;
+  height:auto!important;
+  object-fit:contain!important;
+}
+#quick-desk-img,
+#quick-screen-img,
+#ff-hero-img,
+#ff-clean-preview-img{
+  background:#f7f7f7!important;
+  border-radius:14px!important;
+}
+
+/* keep duplicated legacy summaries from visually stacking */
+#preview-panel #ff90-option-summary ~ #ff90-option-summary,
+#preview-panel #ff136-option-summary ~ #ff136-option-summary,
+#preview-panel #ff-cpf-render-panel ~ #ff-cpf-render-panel{
+  display:none!important;
+}
+
+/* buttons */
+#quick-ai-preview-btn,
+#ff-clean-render-btn,
+#ai-render-btn,
+#screen-ai-btn{
+  cursor:pointer!important;
+  min-height:42px!important;
+  border-radius:14px!important;
+}
+
+@media(max-width:1180px){
+  #desk-grid,#screen-grid{grid-template-columns:1fr!important;}
+}
+</style>
+
+<script id="ff-refactor-traffic-guard-v1">
+(function(){
+  if(window.__ffRefactorTrafficGuardV1) return;
+  window.__ffRefactorTrafficGuardV1 = true;
+
+  var RENDER_WINDOW_MS = 30000;
+  var API_RE = /\/api\/generate-preview|\/api\/generate-screen-preview|generate-preview|generate-screen-preview/i;
+  var RENDER_TEXT_RE = /원본\s*사진에\s*재질\s*적용|고해상도\s*렌더링|실사\s*미리보기\s*생성|렌더링하기|렌더링\s*생성|AI\s*렌더/i;
+  var RENDER_IDS = {
+    'quick-ai-preview-btn':1,
+    'ff-clean-render-btn':1,
+    'ai-render-btn':1,
+    'screen-ai-btn':1,
+    'product-preview-confirm':1
+  };
+
+  function now(){ return Date.now ? Date.now() : new Date().getTime(); }
+  function text(el){ return String(el && (el.textContent || el.innerText || el.value || el.getAttribute && el.getAttribute('aria-label') || '') || '').trim(); }
+  function isRenderControl(el){
+    if(!el) return false;
+    if(el.id && RENDER_IDS[el.id]) return true;
+    return RENDER_TEXT_RE.test(text(el));
+  }
+  function allowRender(reason){
+    window.__ffAllowNanoUntil = now() + RENDER_WINDOW_MS;
+    window.__ffLastRenderReason = reason || 'render-button';
+  }
+  function isAllowed(){ return (window.__ffAllowNanoUntil || 0) > now(); }
+  function isApiUrl(url){ return API_RE.test(String(url || '')); }
+  function safeLocalPreview(){
+    try{
+      if(typeof window.requestStableOriginalPreview === 'function') window.requestStableOriginalPreview();
+      else if(window.FlowFinderFastPreview && typeof window.FlowFinderFastPreview.render === 'function') window.FlowFinderFastPreview.render('');
+      else if(window.FlowFinderOriginalHeroPreview && typeof window.FlowFinderOriginalHeroPreview.update === 'function') window.FlowFinderOriginalHeroPreview.update();
+    }catch(e){}
+  }
+
+  // Capture the user's explicit render intent before existing onclick handlers run.
+  document.addEventListener('click', function(e){
+    var btn = e.target && e.target.closest && e.target.closest('button,a,input,[role="button"]');
+    if(isRenderControl(btn)) allowRender('explicit-render-click');
+  }, true);
+
+  // If legacy code calls prepareNanoBananaPreview during option selection, do local preview only and skip API.
+  function wrapPrepare(){
+    var fn = window.prepareNanoBananaPreview;
+    if(typeof fn !== 'function' || fn.__ffGuardWrapped) return;
+    var wrapped = function(){
+      if(!isAllowed()){
+        safeLocalPreview();
+        var note = document.getElementById('quick-ai-preview-note');
+        if(note && note.classList && (note.classList.contains('ai-loading') || /생성 중|재질 적용 중/.test(note.textContent||''))){
+          note.className = '';
+          note.innerHTML = '';
+          note.style.display = 'none';
+        }
+        if(window.console && console.info) console.info('[FlowFinder] skipped Nano Banana call: option selection is visual-only.');
+        return Promise.resolve({skipped:true, reason:'not-explicit-render'});
+      }
+      return fn.apply(this, arguments);
+    };
+    wrapped.__ffGuardWrapped = true;
+    wrapped.__ffOriginal = fn;
+    window.prepareNanoBananaPreview = wrapped;
+  }
+
+  // Guard fetch-based API calls.
+  var oldFetch = window.fetch;
+  if(oldFetch && !oldFetch.__ffTrafficGuardWrapped){
+    var guardedFetch = function(input, init){
+      var url = (typeof input === 'string') ? input : (input && input.url) || '';
+      if(isApiUrl(url) && !isAllowed()){
+        safeLocalPreview();
+        if(window.console && console.warn) console.warn('[FlowFinder] blocked accidental render API call:', url);
+        return Promise.resolve(new Response(JSON.stringify({skipped:true, reason:'not-explicit-render'}), {
+          status:200,
+          headers:{'Content-Type':'application/json'}
+        }));
+      }
+      return oldFetch.apply(this, arguments);
+    };
+    guardedFetch.__ffTrafficGuardWrapped = true;
+    window.fetch = guardedFetch;
+  }
+
+  // Guard XHR-based API calls used by later legacy patches.
+  if(window.XMLHttpRequest && !window.XMLHttpRequest.prototype.__ffTrafficGuardWrapped){
+    var proto = window.XMLHttpRequest.prototype;
+    var oldOpen = proto.open;
+    var oldSend = proto.send;
+    proto.open = function(method, url){
+      this.__ffGuardUrl = url;
+      return oldOpen.apply(this, arguments);
+    };
+    proto.send = function(body){
+      if(isApiUrl(this.__ffGuardUrl) && !isAllowed()){
+        safeLocalPreview();
+        if(window.console && console.warn) console.warn('[FlowFinder] blocked accidental XHR render API call:', this.__ffGuardUrl);
+        try{ this.abort(); }catch(e){}
+        return;
+      }
+      return oldSend.apply(this, arguments);
+    };
+    proto.__ffTrafficGuardWrapped = true;
+  }
+
+  // Existing scripts reassign prepareNanoBananaPreview several times, so re-wrap after DOM mutations/timers.
+  wrapPrepare();
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(wrapPrepare, 0); setTimeout(wrapPrepare, 500); setTimeout(wrapPrepare, 1500); });
+  else { setTimeout(wrapPrepare, 0); setTimeout(wrapPrepare, 500); setTimeout(wrapPrepare, 1500); }
+
+  // Avoid render panels staying in loading state after purely visual option clicks.
+  document.addEventListener('click', function(e){
+    var btn = e.target && e.target.closest && e.target.closest('button,a,input,[role="button"],.choice-btn,.material-btn,.product-select-card,.set-card');
+    if(!btn || isRenderControl(btn)) return;
+    setTimeout(function(){
+      if(!isAllowed()){
+        var note = document.getElementById('quick-ai-preview-note');
+        if(note && /생성 중|재질 적용 중|서버로 보내고/.test(note.textContent || '')){
+          note.className=''; note.innerHTML=''; note.style.display='none';
+        }
+      }
+    }, 30);
+  }, true);
+})();
+</script>
+
+
+<!-- === FF_COMPACT_ONE_SCREEN_LAYOUT_V1 === -->
+<style id="ff-compact-one-screen-layout-v1">
+/*
+  Compact one-screen layer
+  - Keeps product choice, desk option image cards, and Configuration Studio visible without vertical scrolling.
+  - Visual/CSS only: no render or API logic changed.
+*/
+body.ff-stitch-layout-v2 #ff-stitch-app{
+  grid-template-columns:minmax(300px,21vw) minmax(620px,1fr) minmax(300px,22vw) !important;
+}
+
+/* LEFT chat: make the "추가할 제품을 선택하세요" choice area shorter */
+body.ff-stitch-layout-v2 #chat-header{
+  flex-basis:82px !important;
+  padding:18px 20px 12px !important;
+}
+body.ff-stitch-layout-v2 #flow-bar{
+  margin-top:10px !important;
+  gap:5px !important;
+}
+body.ff-stitch-layout-v2 .flow-step{
+  height:24px !important;
+  line-height:24px !important;
+  padding:0 7px !important;
+  font-size:9px !important;
+}
+body.ff-stitch-layout-v2 #messages{
+  padding:16px 18px !important;
+  gap:10px !important;
+}
+body.ff-stitch-layout-v2 .bubble{
+  padding:11px 12px !important;
+  border-radius:13px !important;
+  font-size:13px !important;
+  line-height:1.42 !important;
+  max-width:96% !important;
+}
+body.ff-stitch-layout-v2 .btn-group,
+body.ff-stitch-layout-v2 .choice-group,
+body.ff-stitch-layout-v2 .product-choice-group{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:7px !important;
+  margin-top:8px !important;
+}
+body.ff-stitch-layout-v2 .choice-btn{
+  min-height:34px !important;
+  padding:7px 9px !important;
+  font-size:12px !important;
+  line-height:1.2 !important;
+  border-radius:11px !important;
+}
+body.ff-stitch-layout-v2 #input-area{
+  flex-basis:70px !important;
+  padding:13px 16px !important;
+}
+body.ff-stitch-layout-v2 #user-input{
+  min-height:42px !important;
+}
+body.ff-stitch-layout-v2 #send-btn{
+  width:40px !important;
+  height:40px !important;
+  min-width:40px !important;
+}
+
+/* CENTER: reserve more room for the main product image, compress Configuration Studio */
+body.ff-stitch-layout-v2 #ff-dashboard-hero{
+  flex:1 1 calc(100vh - 248px) !important;
+  min-height:330px !important;
+}
+body.ff-stitch-layout-v2 #ff-dashboard-hero .ff-hero-topline{
+  left:20px !important;
+  right:20px !important;
+  top:14px !important;
+}
+body.ff-stitch-layout-v2 #ff-dashboard-hero .ff-hero-image-card{
+  padding:52px 24px 22px !important;
+}
+body.ff-stitch-layout-v2 #ff-hero-canvas{
+  inset:52px 24px 22px !important;
+  width:calc(100% - 48px) !important;
+  height:calc(100% - 74px) !important;
+}
+body.ff-stitch-layout-v2 .ff-hero-thumbs{
+  display:none !important;
+}
+
+/* Configuration Studio tray: fixed compact height, no vertical scroll */
+body.ff-stitch-layout-v2 #ff-stitch-center-tray{
+  flex:0 0 248px !important;
+  min-height:248px !important;
+  max-height:248px !important;
+  padding:12px 18px 14px !important;
+  overflow-x:hidden !important;
+  overflow-y:hidden !important;
+}
+body.ff-stitch-layout-v2 #ff-stitch-center-tray .ff-tray-title{
+  height:16px !important;
+  margin:0 0 8px !important;
+  font-size:10px !important;
+  line-height:16px !important;
+  letter-spacing:.11em !important;
+}
+
+/* Product selector / desk option image cards: horizontal compact strip */
+body.ff-stitch-layout-v2 #set-product-selector{
+  order:1 !important;
+  padding:8px !important;
+  margin:0 !important;
+  border-radius:14px !important;
+  border:1px solid rgba(209,224,255,.14) !important;
+  background:rgba(16,26,42,.78) !important;
+  max-height:110px !important;
+  overflow:hidden !important;
+}
+body.ff-stitch-layout-v2 #set-product-selector h2,
+body.ff-stitch-layout-v2 #set-product-selector h3,
+body.ff-stitch-layout-v2 #set-product-selector .panel-title,
+body.ff-stitch-layout-v2 #set-product-selector .section-title{
+  display:none !important;
+}
+body.ff-stitch-layout-v2 #desk-grid,
+body.ff-stitch-layout-v2 #screen-grid{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  grid-template-columns:none !important;
+  gap:8px !important;
+  align-items:stretch !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  padding:0 0 4px !important;
+  max-height:94px !important;
+  scrollbar-width:thin !important;
+}
+body.ff-stitch-layout-v2 #set-product-selector [data-set-name]{
+  flex:0 0 104px !important;
+  width:104px !important;
+  min-width:104px !important;
+  min-height:86px !important;
+  height:86px !important;
+  max-height:86px !important;
+  padding:0 !important;
+  border-radius:12px !important;
+  overflow:hidden !important;
+}
+body.ff-stitch-layout-v2 #set-product-selector [data-set-name] img,
+body.ff-stitch-layout-v2 #desk-grid img,
+body.ff-stitch-layout-v2 #screen-grid img{
+  height:62px !important;
+  max-height:62px !important;
+  width:100% !important;
+  padding:5px 6px 20px !important;
+  object-fit:contain !important;
+}
+body.ff-stitch-layout-v2 #set-product-selector [data-set-name] > div:not(.set-check-badge){
+  padding:4px 5px !important;
+  font-size:10px !important;
+  line-height:1.1 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+/* Material/value panel inside studio: one compact line */
+body.ff-stitch-layout-v2 #texture-preview,
+body.ff-stitch-layout-v2 .quick-preview-panel#texture-preview{
+  order:2 !important;
+  padding:8px !important;
+  margin-top:8px !important;
+  border-radius:14px !important;
+  max-height:96px !important;
+  overflow:hidden !important;
+}
+body.ff-stitch-layout-v2 #texture-preview .quick-preview-grid,
+body.ff-stitch-layout-v2 #texture-preview .quick-card{
+  display:none !important;
+}
+body.ff-stitch-layout-v2 #texture-preview .quick-materials{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  gap:8px !important;
+  margin:0 !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  padding-bottom:2px !important;
+}
+body.ff-stitch-layout-v2 #texture-preview .material-chip-row{
+  flex:1 0 150px !important;
+  min-width:150px !important;
+  min-height:58px !important;
+  height:58px !important;
+  padding:7px 9px !important;
+  display:grid !important;
+  grid-template-columns:46px 34px minmax(0,1fr) !important;
+  gap:7px !important;
+  align-items:center !important;
+  border-radius:12px !important;
+}
+body.ff-stitch-layout-v2 #texture-preview .material-chip-row span{
+  font-size:11px !important;
+}
+body.ff-stitch-layout-v2 #texture-preview .material-chip-row em{
+  width:32px !important;
+  height:32px !important;
+  border-radius:8px !important;
+}
+body.ff-stitch-layout-v2 #texture-preview .material-chip-row b,
+body.ff-stitch-layout-v2 #texture-preview .material-chip-row strong{
+  font-size:11px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+/* Render button / result area stays compact unless explicitly opened */
+body.ff-stitch-layout-v2 #product-preview-box,
+body.ff-stitch-layout-v2 #screen-composite-preview,
+body.ff-stitch-layout-v2 #ff-live-preview{
+  margin-top:8px !important;
+  max-height:38px !important;
+  overflow:hidden !important;
+}
+body.ff-stitch-layout-v2 #quick-ai-preview-btn,
+body.ff-stitch-layout-v2 #ff-clean-render-btn,
+body.ff-stitch-layout-v2 #ai-render-btn,
+body.ff-stitch-layout-v2 #screen-ai-btn{
+  min-height:34px !important;
+  height:34px !important;
+  padding:0 12px !important;
+  font-size:12px !important;
+  border-radius:11px !important;
+}
+
+@media(max-height:780px){
+  body.ff-stitch-layout-v2 #ff-dashboard-hero{min-height:280px !important;}
+  body.ff-stitch-layout-v2 #ff-stitch-center-tray{flex-basis:224px !important;min-height:224px !important;max-height:224px !important;}
+  body.ff-stitch-layout-v2 #set-product-selector{max-height:96px !important;}
+  body.ff-stitch-layout-v2 #set-product-selector [data-set-name]{height:76px !important;min-height:76px !important;}
+  body.ff-stitch-layout-v2 #set-product-selector [data-set-name] img{height:54px !important;max-height:54px !important;}
+  body.ff-stitch-layout-v2 #texture-preview{max-height:82px !important;}
+}
+</style>
 
 </body>
 
