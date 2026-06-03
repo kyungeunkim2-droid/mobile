@@ -71,20 +71,21 @@ function serveFile(req, res) {
 }
 
 http.createServer((req, res) => {
-  if (req.method === 'POST' && req.url === '/api/render') return render(req, res);
+  if (
+    req.method === 'POST' &&
+    (
+      req.url === '/api/render' ||
+      req.url === '/api/generate-preview' ||
+      req.url === '/api/generate-screen-preview'
+    )
+  ) {
+    return render(req, res);
+  }
+
   if (req.method === 'GET') return serveFile(req, res);
+
   send(res, 405, { error: 'Method not allowed' });
-}).listen(port, () => {
+}).listen(port, '0.0.0.0', () => {
   console.log(`FURSYS AI server: http://localhost:${port}`);
   console.log(apiKey ? 'Nano Banana key loaded from .env' : 'Missing NANO_BANANA_API_KEY in .env');
 });
-if (
-  req.method === 'POST' &&
-  (
-    req.url === '/api/render' ||
-    req.url === '/api/generate-preview' ||
-    req.url === '/api/generate-screen-preview'
-  )
-) {
-  return render(req, res);
-}
